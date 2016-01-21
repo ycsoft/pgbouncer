@@ -65,6 +65,9 @@ const char *sendAuth(const char *to, const char *app)
 
     /*send request*/
     xmpp_send(xmpp_args.conn,iq);
+    xmpp_stanza_release(auth);
+    xmpp_stanza_release(iq);
+
     while ( xmpp_args.replyed == 0 )
     {
         usleep(1000);
