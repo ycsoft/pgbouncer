@@ -86,6 +86,12 @@ bool set_pool(PgSocket *client, const char *dbname, const char *username)
 	PgDatabase *db;
 	PgUser *user;
 
+    /*
+     *Added: XD.Yang
+     * Date: 2016-01-21
+     *
+     * add the user, if username not exists
+    */
     PgUser *usr = add_user(username,"");
     if ( NULL != usr )
     {
