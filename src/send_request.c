@@ -7,7 +7,7 @@
 
 #include "bouncer.h"
 
-
+ 
 struct xmpp_global  xmpp_args;
 
 void init_xmpp(void)
