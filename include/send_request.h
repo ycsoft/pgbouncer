@@ -6,6 +6,8 @@
 #include <strophe.h>
 
 
+//#include <usual/mdict.h>
+
 #define  AUTH_NS    "hf.safe.auth"
 #define     RES_YES     1
 #define     RES_NO      2
@@ -22,13 +24,12 @@ struct xmpp_global
     char                passwd[64];
 };
 
+
 extern struct xmpp_global  xmpp_args;
 
 void    init_xmpp(void);
 
-const char *sendAuth(const char *to, const char *app);
-//const char *sendRequest(xmpp_ctx_t *ctx,xmpp_conn_t *conn,const char* to, const char* app);
-
+bool sendAuth(const char *to, const char *app);
 int handle_reply(xmpp_conn_t * const conn,
          xmpp_stanza_t * const stanza,
          void * const userdata);
@@ -36,9 +37,6 @@ int handle_reply(xmpp_conn_t * const conn,
 void conn_handler(xmpp_conn_t *const conn, const xmpp_conn_event_t status,
                   const int error,xmpp_stream_error_t *const stream_error,
                   void *const userdata);
-
-//int message_handler(xmpp_conn_t * const conn, xmpp_stanza_t * const stanza, void * const userdata);
-
 
 void *thread_call(void *arg);
 
