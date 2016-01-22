@@ -21,6 +21,7 @@
  */
 
 #include "bouncer.h"
+#include "hf_list.h"
 
 #include <usual/signal.h>
 #include <usual/err.h>
@@ -785,6 +786,9 @@ int main(int argc, char *argv[])
 	/* main loop */
 	while (cf_shutdown < 2)
 		main_loop_once();
+
+    log_info("*****************************PgBouncer Exit***********************");
+    hflist_free();
 
 	return 0;
 }
