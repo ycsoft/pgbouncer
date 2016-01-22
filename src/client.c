@@ -37,48 +37,13 @@ static const char *hdr2hex(const struct MBuf *data, char *buf, unsigned buflen)
 
 static bool check_client_passwd(PgSocket *client, const char *passwd)
 {
-	char md5[MD5_PASSWD_LEN + 1];
-    const char *correct,*req;
 	PgUser *user = client->auth_user;
 
     log_debug("user password is:%s",user->passwd);
 	/* disallow empty passwords */
 	if (!*passwd || !*user->passwd)
 		return false;
-
-
-    /*
-    *Added By Xiaodong Yang
-    * Date : 2016-01-09
-    **/
-    log_debug("user name:%s  password:%s",xmpp_args.name,xmpp_args.passwd);
-    //req = sendRequest(_ctx,_conn,_username,_password);
-    req = sendAuth( xmpp_args.name,xmpp_args.passwd );
-    log_debug("Desktop Accept or Not? %s\n",req);
-    if (strcmp(req,"No") == 0)
-    {
-        //disconnect_client(client, true, "DeskTop Don't Allow Client to Login");
-        return false;
-    }else{
-        return true;
-    }
-
-
-	switch (cf_auth_type) {
-	case AUTH_PLAIN:
-		return strcmp(user->passwd, passwd) == 0;
-	case AUTH_CRYPT:
-		correct = crypt(user->passwd, (char *)client->tmp_login_salt);
-		return correct && strcmp(correct, passwd) == 0;
-	case AUTH_MD5:
-		if (strlen(passwd) != MD5_PASSWD_LEN)
-			return false;
-		if (!isMD5(user->passwd))
-			pg_md5_encrypt(user->passwd, user->name, strlen(user->name), user->passwd);
-		pg_md5_encrypt(user->passwd + 3, (char *)client->tmp_login_salt, 4, md5);
-		return strcmp(md5, passwd) == 0;
-	}
-	return false;
+    return true;
 }
 
 bool set_pool(PgSocket *client, const char *dbname, const char *username)
@@ -99,6 +64,7 @@ bool set_pool(PgSocket *client, const char *dbname, const char *username)
     }
 	/* find database */
 	db = find_database(dbname);
+    log_debug("**************set_pool*************");
 	if (!db) {
 		db = register_auto_database(dbname);
 		if (!db) {
