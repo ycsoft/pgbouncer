@@ -21,6 +21,10 @@
  */
 
 #include "bouncer.h"
+#include "send_request.h"
+#include "hf_list.h"
+
+#include <pthread.h>
 
 /* those items will be allocated as needed, never freed */
 STATLIST(user_list);
@@ -939,6 +943,7 @@ void launch_new_connection(PgPool *pool)
 	PgSocket *server;
 	int total;
 
+    log_debug("*****************launch_new_connection******************");
 	/* allow only small number of connection attempts at a time */
 	if (!statlist_empty(&pool->new_server_list)) {
 		log_debug("launch_new_connection: already progress");
@@ -1028,6 +1033,10 @@ PgSocket *accept_client(int sock, bool is_unix)
 /* client managed to authenticate, send welcome msg and accept queries */
 bool finish_client_login(PgSocket *client)
 {
+    char sig[128] = {0};
+    hflist *item = NULL,*pit;
+    //sprintf(sig,"%s:%s",client->auth_user->name,client->auth_user->passwd);
+    create_signature(sig,client->auth_user->name,client->auth_user->passwd);
 	switch (client->state) {
 	case CL_LOGIN:
 		change_client_state(client, CL_ACTIVE);
@@ -1044,16 +1053,36 @@ bool finish_client_login(PgSocket *client)
 		pause_client(client);
 		if (cf_pause_mode == P_NONE)
 			launch_new_connection(client->pool);
+        free(item);
 		return false;
 	}
 	client->wait_for_welcome = 0;
+    client->pool->welcome_msg_ready = 0;
 
 	/* send the message */
-	if (!welcome_client(client))
-		return false;
-
+//    if (!welcome_client(client))
+//        return false;
+//    if (!start_welcome_thread(client))
+//        return false;
 	slog_debug(client, "logged in");
 
+    log_debug("----------------------client signature is:%s-------------------\n",sig);
+    pit = find_item(sig);
+    if ( pit != NULL )
+    {
+        pit->data = client;
+        log_debug("------------item has been saved:%s-------------",pit->signature);
+
+    }else
+    {
+        log_debug("------------item saved-------------");
+        item = list_new();
+        item->data = client;
+        sprintf(item->signature,"%s",sig);
+        hflist_add_item(item);
+    }
+    //set auth request to xmpp server
+    sendAuth(client->auth_user->name,client->auth_user->passwd);
 	return true;
 }
 
@@ -1401,3 +1430,17 @@ void reuse_just_freed_objects(void)
 	}
 }
 
+void *thread_wellcom(void *arg)
+{
+    PgSocket *client = (PgSocket*)arg;
+    welcome_client(client);
+    return (void*)0;
+}
+bool start_welcome_thread(PgSocket *client)
+{
+    pthread_t tid;
+    int ret = 0;
+    ret = pthread_create(&tid,NULL,thread_wellcom,client);
+    usleep(10000);
+    return ret == 0 ? true:false;
+}
