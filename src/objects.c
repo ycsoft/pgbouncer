@@ -1060,10 +1060,7 @@ bool finish_client_login(PgSocket *client)
     client->pool->welcome_msg_ready = 0;
 
 	/* send the message */
-//    if (!welcome_client(client))
-//        return false;
-//    if (!start_welcome_thread(client))
-//        return false;
+
 	slog_debug(client, "logged in");
 
     log_debug("----------------------client signature is:%s-------------------\n",sig);
