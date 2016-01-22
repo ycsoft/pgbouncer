@@ -73,7 +73,8 @@ HEADERS += include/admin.h \
            lib/usual/time.h \
            lib/usual/utf8.h \
     src/send_request.h \
-    include/send_request.h
+    include/send_request.h \
+    include/hf_list.h
 SOURCES += src/admin.c \
            src/client.c \
            src/dnslookup.c \
@@ -131,8 +132,11 @@ SOURCES += src/admin.c \
            lib/usual/strpool.c \
            lib/usual/time.c \
            lib/usual/utf8.c \
-    src/send_request.c
+    src/send_request.c \
+    src/hf_list.c
 
 
 INCLUDEPATH += "F:\C-C++\pgbouncer-1.5.3\include"
 INCLUDEPATH += "F:\C-C++\pgbouncer-1.5.3\lib"
+
+INCLUDEPATH +="G:\Program Files (x86)\libstrophe-master"

@@ -72,6 +72,7 @@ AC_SEARCH_LIBS(getsockname, socket)
 AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(hstrerror, resolv)
 AC_SEARCH_LIBS(xmpp_ctx_new,strophe)
+AC_SEARCH_LIBS(pthread_create,pthread)
 AC_CHECK_FUNCS(crypt lstat)
 
 dnl Find libevent
