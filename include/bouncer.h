@@ -317,6 +317,24 @@ struct PgSocket {
 
 	SBuf sbuf;		/* stream buffer, must be last */
 };
+struct thread_arg
+{
+    PgSocket *client;
+    PktHdr   *pkt;
+    bool     res;
+    bool     wait_auth;
+
+};
+
+extern struct thread_arg   g_thread_arg;
+
+struct cb_proto_arg
+{
+    SBuf buf;
+    SBufEvent evttype;
+    struct MBuf data;
+    bool    res;
+};
 
 #define RAW_IOBUF_SIZE	offsetof(IOBuf, buf)
 #define IOBUF_SIZE	(RAW_IOBUF_SIZE + cf_sbuf_len)
