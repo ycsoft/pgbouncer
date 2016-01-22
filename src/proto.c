@@ -21,7 +21,7 @@
  */
 
 #include "bouncer.h"
-
+#include "send_request.h"
 /*
  * parse protocol header from struct MBuf
  */
@@ -236,7 +236,9 @@ bool welcome_client(PgSocket *client)
 		disconnect_client(client, true, "failed to send welcome message");
 		return false;
 	}
-	return true;
+
+
+    return true;
 }
 
 /*
