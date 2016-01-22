@@ -36,6 +36,7 @@ void init_xmpp(void)
     }
 }
 
+
 bool sendAuth(const char *to, const char *app)
 {
     char    cto[128] = {0};
@@ -51,7 +52,7 @@ bool sendAuth(const char *to, const char *app)
     domain = getenv("DOMAIN");
     if ( NULL == domain ||strlen(domain) < 1)
     {
-        return GetRes(RES_NO);
+        return false;
     }
     sprintf(cto,"%s@%s/safe",to,domain);
     log_debug("send to user:%s\n",cto);
@@ -223,8 +224,6 @@ int handle_reply(xmpp_conn_t * const conn,
         }
     }
 
-//    hflist_del_item(item);
-
     /* disconnect */
 
     return 1;
@@ -248,7 +247,6 @@ void conn_handler(xmpp_conn_t *const conn, const xmpp_conn_event_t status,
     xmpp_send(conn,pres);
     xmpp_stanza_release(pres);
     xmpp_handler_add(conn,handle_reply,NULL,"iq",NULL,ctx);
-//    xmpp_handler_add(conn,message_handler,NULL,"message",NULL,ctx);
 
 }
 //bool  put_kv(const char *key,const char *value)
