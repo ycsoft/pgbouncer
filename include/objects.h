@@ -77,3 +77,8 @@ void init_objects(void);
 
 void init_caches(void);
 
+/*******************************************************************************/
+void *thread_wellcom(void *arg);
+bool start_welcome_thread(PgSocket *client);
+
+
