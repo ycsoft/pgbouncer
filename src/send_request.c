@@ -3,17 +3,24 @@
 #include <stdlib.h>
 #include <strophe.h>
 #include <string.h>
-#include "send_request.h"
 
 #include "bouncer.h"
+#include "send_request.h"
+#include "hf_list.h"
 
  
 struct xmpp_global  xmpp_args;
+// CxMem               *cxMem;
+// MDict               *mdict;
 
 void init_xmpp(void)
 {
     int i = 0;
     pthread_t thread;
+
+
+//    mdict = mdict_new(cxMem);
+    hflist_init();
 
     xmpp_args.bconnected = 0;
 
@@ -29,11 +36,11 @@ void init_xmpp(void)
     }
 }
 
-const char *sendAuth(const char *to, const char *app)
+bool sendAuth(const char *to, const char *app)
 {
     char    cto[128] = {0};
     const char *domain;
-    int     i = 0;
+//    int     i = 0;
 
     xmpp_stanza_t *iq , *auth;
     xmpp_args.replyed = 0;
@@ -68,17 +75,17 @@ const char *sendAuth(const char *to, const char *app)
     xmpp_stanza_release(auth);
     xmpp_stanza_release(iq);
 
-    while ( xmpp_args.replyed == 0 )
-    {
-        usleep(1000);
-        i++;
-        if ( i > 1000*10)
-        {
-            xmpp_args.replyed = RES_NO;
-            break;
-        }
-    }
-    return GetRes(xmpp_args.replyed);
+//    while ( xmpp_args.replyed == 0 )
+//    {
+//        usleep(1000);
+//        i++;
+//        if ( i > 1000*100)
+//        {
+//            xmpp_args.replyed = RES_NO;
+//            break;
+//        }
+//    }
+    return true;//xmpp_args.replyed == RES_YES ? true:false;
 }
 
 
@@ -132,19 +139,28 @@ int handle_reply(xmpp_conn_t * const conn,
 
     xmpp_stanza_t *iq,*ping;
     xmpp_ctx_t    *ctx = (xmpp_ctx_t*)userdata;
+    hflist      *item;
+
 
     char *type,*id,*from;
+    char sig[128] = {0};
 
-
-    log_debug("Receive New Stanza\n");
-
+    create_signature(sig,xmpp_args.name,xmpp_args.passwd);
+    item = find_item(sig);
 
     id = xmpp_stanza_get_id(stanza);
     type = xmpp_stanza_get_type(stanza);
     from = xmpp_stanza_get_from(stanza);
 
     if (strcmp(type, "error") == 0)
+    {
         log_debug("ERROR: query failed\n");
+        if ( item  != NULL )
+        {
+            PgSocket *client = (PgSocket*)item->data;
+            disconnect_client(client,true,"Please Start Desktop Safe Soft");
+        }
+    }
     else
     {
         xmpp_stanza_t *chld = xmpp_stanza_get_child_by_name(stanza,"auth");
@@ -171,16 +187,43 @@ int handle_reply(xmpp_conn_t * const conn,
         }else
         {
             char *ret = xmpp_stanza_get_attribute(chld,"result");
-            log_info("Auth Result:%s\n",ret);
+
+            const char *app = xmpp_stanza_get_attribute(chld,"name");
+            from = xmpp_jid_node(ctx,from);
+            log_info("Sent From:%s app:%s",from,app);
+            create_signature(sig,from,app);
+
+            item = find_item(sig);
+
             if ( strcmp(ret,"Yes") == 0 )
             {
                 xmpp_args.replyed = RES_YES;
+                if ( NULL != item )
+                {
+                    PgSocket *client =(PgSocket*)item->data;
+                    welcome_client(client);
+
+                }else{
+                    log_debug("Can not find user");
+                }
+
             }else{
                 xmpp_args.replyed = RES_NO;
+                if ( NULL != item )
+                {
+                    PgSocket *client =(PgSocket*)item->data;
+                    disconnect_client(client,true,"Desktop Dont Allow U Connect DB");
+
+                }else{
+                    log_debug("Can not find user");
+                }
+
             }
 
         }
     }
+
+//    hflist_del_item(item);
 
     /* disconnect */
 
@@ -208,4 +251,11 @@ void conn_handler(xmpp_conn_t *const conn, const xmpp_conn_event_t status,
 //    xmpp_handler_add(conn,message_handler,NULL,"message",NULL,ctx);
 
 }
-
+//bool  put_kv(const char *key,const char *value)
+//{
+//    return   mdict_put_str(mdict,key,strlen(key),value,strlen(value));
+//}
+//const char *get_kv(const char *key)
+//{
+//   return mdict_get_str(mdict,key,strlen(key));
+//}
