@@ -115,6 +115,7 @@ static bool decide_startup_pool(PgSocket *client, PktHdr *pkt)
 	const char *key, *val;
 	bool ok;
 
+
 	while (1) {
 		ok = mbuf_get_string(&pkt->data, &key);
 		if (!ok || *key == 0)

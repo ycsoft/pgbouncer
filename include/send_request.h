@@ -6,7 +6,6 @@
 #include <strophe.h>
 
 
-//#include <usual/mdict.h>
 
 #define  AUTH_NS    "hf.safe.auth"
 #define     RES_YES     1
