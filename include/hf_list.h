@@ -5,14 +5,12 @@ struct hflist
 {
     struct hflist *next;
     void *data;
+    char signature[128];
 };
 
 typedef struct hflist hflist;
 
 extern hflist *hf_head;
-
-typedef enum{
-    false,true } bool;
 
 bool isEmpty(const hflist *lst);
 
@@ -25,6 +23,10 @@ void hflist_add_item( const hflist *item);
 void hflist_del_item(const hflist *item);
 
 hflist *find_item(void *data);
+
+void   create_signature(char *res, const char *name,const char *pwd);
+
+void   hflist_free(void);
 
 
 
