@@ -5,6 +5,7 @@ bin_PROGRAMS = pgbouncer
 
 pgbouncer_SOURCES = \
 	src/send_request.c \
+	src/hf_list.c \
 	src/admin.c \
 	src/client.c \
 	src/dnslookup.c \
@@ -22,7 +23,6 @@ pgbouncer_SOURCES = \
 	src/takeover.c \
 	src/util.c \
 	src/varcache.c \
-	include/send_request.h \
 	include/admin.h \
 	include/bouncer.h \
 	include/client.h \
