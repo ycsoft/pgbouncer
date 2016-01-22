@@ -1,5 +1,6 @@
-#include "hf_list.h"
+#include "bouncer.h"
 
+#include "hf_list.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -48,6 +49,9 @@ void hflist_del_item(const hflist *item)
 {
     hflist *ptr = gethflist_head();
 
+    if( item == NULL )
+        return;
+
     while(ptr != NULL && ptr->next != item )
     {
         ptr = ptr ->next;
@@ -63,9 +67,25 @@ void hflist_del_item(const hflist *item)
 hflist * find_item(void *data)
 {
     hflist *head = gethflist_head();
-    while ( head != NULL && head->data != data )
+    while ( head != NULL && strcmp(head->signature,(const char*)data) )
     {
         head = head->next;
     }
     return head;
+}
+
+void create_signature(char *res, const char *name, const char *pwd)
+{
+    sprintf(res,"%s:%s",name,pwd);
+}
+
+void hflist_free(void)
+{
+    hflist *head = gethflist_head();
+    while( head != NULL )
+    {
+        hflist *pre = head;
+        head = head->next;
+        free(pre);
+    }
 }
